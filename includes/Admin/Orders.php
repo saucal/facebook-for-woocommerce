@@ -422,12 +422,19 @@ class Orders {
 
 		$order_refund = wc_get_order( $refund_id );
 
-		if ( $order_refund instanceof \WC_Order_Refund ) {
-
-			$reason_code = isset( $_POST['wc_facebook_refund_reason'] ) ? $_POST['wc_facebook_refund_reason'] : null;
-
-			facebook_for_woocommerce()->get_commerce_handler()->get_orders_handler()->add_order_refund( $order_refund, $reason_code );
+		if ( ! $order_refund instanceof \WC_Order_Refund ) {
+			return;
 		}
+
+		$order = wc_get_order( $order_refund->get_parent_id() );
+
+		if ( ! $order instanceof \WC_Order || ! Commerce\Orders::is_commerce_order( $order ) ) {
+			return;
+		}
+
+		$reason_code = wc_clean( Framework\SV_WC_Helper::get_posted_value( 'wc_facebook_refund_reason' ) );
+
+		facebook_for_woocommerce()->get_commerce_handler()->get_orders_handler()->add_order_refund( $order_refund, $reason_code );
 	}
 
 

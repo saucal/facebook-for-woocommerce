@@ -60,6 +60,7 @@ class OrdersTest extends \Codeception\TestCase\WPTestCase {
 		facebook_for_woocommerce()->get_connection_handler()->update_access_token( 'access_token' );
 
 		$order = new \WC_Order();
+		$order->set_created_via( 'facebook' );
 		$order->save();
 
 		$refund = new \WC_Order_Refund();
@@ -70,6 +71,29 @@ class OrdersTest extends \Codeception\TestCase\WPTestCase {
 		$this->expectExceptionMessage( 'Remote ID for parent order not found' );
 
 		$this->get_orders_handler()->handle_refund( $refund->get_id() );
+	}
+
+
+	/** @see Admin\Orders::handle_refund() */
+	public function test_handle_refund_for_non_commerce_orders() {
+
+		$order = new \WC_Order();
+		$order->set_created_via( 'checkout' );
+		$order->save();
+
+		$refund = new \WC_Order_Refund();
+		$refund->set_parent_id( $order->get_id() );
+		$refund->save();
+
+		$commerce_orders_handler = facebook_for_woocommerce()->get_commerce_handler()->get_orders_handler();
+
+		$this->tester->setPropertyValue( facebook_for_woocommerce()->get_commerce_handler(), 'orders', $this->make( Orders::class, [
+			'add_order_refund' => \Codeception\Stub\Expected::never(),
+		] ) );
+
+		$this->get_orders_handler()->handle_refund( $refund->get_id() );
+
+		$this->tester->setPropertyValue( facebook_for_woocommerce()->get_commerce_handler(), 'orders', $commerce_orders_handler );
 	}
 
 
