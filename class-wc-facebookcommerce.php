@@ -118,6 +118,7 @@ if ( ! class_exists( 'WC_Facebookcommerce' ) ) :
 				require_once __DIR__ . '/includes/Locale.php';
 				require_once __DIR__ . '/includes/AJAX.php';
 				require_once __DIR__ . '/includes/Handlers/Connection.php';
+				require_once __DIR__ . '/includes/Handlers/WebHook.php';
 				require_once __DIR__ . '/includes/Integrations/Integrations.php';
 				require_once __DIR__ . '/includes/Product_Categories.php';
 				require_once __DIR__ . '/includes/Products.php';
@@ -163,6 +164,7 @@ if ( ! class_exists( 'WC_Facebookcommerce' ) ) :
 				}
 
 				$this->connection_handler = new \SkyVerge\WooCommerce\Facebook\Handlers\Connection( $this );
+				$this->webhook_handler = new \SkyVerge\WooCommerce\Facebook\Handlers\WebHook( $this );
 
 				// load admin handlers, before admin_init
 				if ( is_admin() ) {
